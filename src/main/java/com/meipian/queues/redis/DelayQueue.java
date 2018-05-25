@@ -82,7 +82,7 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
             String json = om.writeValueAsString(message);
             jedis.hset(messageStoreKey, message.getId(), json);
             double priority = message.getPriority() / 100;
-            double score = Long.valueOf(System.currentTimeMillis() + message.getTimeout()).doubleValue() + priority;
+            double score = Long.valueOf(System.currentTimeMillis() + message.getTimeout()*1000).doubleValue() + priority;
             jedis.zadd(realQueueName, score, message.getId());
             delayQueueProcessListener.pushCallback(message);
             isEmpty = false;
@@ -100,6 +100,11 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
         while (true) {
             String id = peekId();
             if (id == null) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 continue;
             }
             Jedis jedis = null;
@@ -110,14 +115,15 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
                 if (message == null) {
                     continue;
                 }
-                long delay = message.getCreateTime() + message.getTimeout() - System.currentTimeMillis();
-                System.out.println(delay);
+                long delay = message.getCreateTime() + message.getTimeout()*1000 - System.currentTimeMillis();
+
                 if (delay <= 0) {
                     delayQueueProcessListener.peekCallback(message);
-                } else {
-                    LockSupport.parkNanos(this, TimeUnit.NANOSECONDS.convert(delay, TimeUnit.MILLISECONDS));
-                    delayQueueProcessListener.peekCallback(message);
                 }
+//                else {
+//                    LockSupport.parkNanos(this, TimeUnit.NANOSECONDS.convert(delay, TimeUnit.MILLISECONDS));
+//                    delayQueueProcessListener.peekCallback(message);
+//                }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -263,7 +269,6 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
         try {
             jedis = jedisPool.getResource();
             if (!isEmpty) {
-                System.out.println("xxxxx");
                 lock.lockInterruptibly();
                 double max = Long.valueOf(System.currentTimeMillis() + MAX_TIMEOUT).doubleValue();
                 Set<String> scanned = jedis.zrangeByScore(realQueueName, 0, max, 0, 1);
