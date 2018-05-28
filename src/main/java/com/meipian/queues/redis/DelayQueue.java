@@ -98,13 +98,13 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
 
     public void listen() {
         while (true) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             String id = peekId();
             if (id == null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 continue;
             }
             Jedis jedis = null;
@@ -119,6 +119,8 @@ public class DelayQueue implements com.meipian.queues.core.DelayQueue {
 
                 if (delay <= 0) {
                     delayQueueProcessListener.peekCallback(message);
+                }else {
+                    push(message);
                 }
 //                else {
 //                    LockSupport.parkNanos(this, TimeUnit.NANOSECONDS.convert(delay, TimeUnit.MILLISECONDS));
