@@ -14,7 +14,7 @@ public class ConditionTest {
                 lock.lock();//请求锁
                 try{
                     System.out.println("thread0");
-//                    Thread.sleep(100000);//休息2秒
+                    Thread.sleep(100000);//休息2秒
                     Thread.currentThread().interrupt();
                     System.out.println("thread0 before wait");
 //                    condition.await();//设置当前线程进入等待
