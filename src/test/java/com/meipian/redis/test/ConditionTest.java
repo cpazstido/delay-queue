@@ -5,7 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConditionTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         final ReentrantLock lock=new ReentrantLock();
         Condition condition =lock.newCondition();
         final Thread thread0 = new Thread(){
@@ -17,7 +17,7 @@ public class ConditionTest {
                     System.out.println("thread0");
                     Thread.sleep(100);
 //                    lock.lock();
-                    Thread.sleep(100000000);//休息2秒
+                    Thread.sleep(5000);//休息2秒
 //                    Thread.currentThread().interrupt();
                     System.out.println("thread0 before wait");
 //                    condition.await();//设置当前线程进入等待
@@ -87,6 +87,7 @@ public class ConditionTest {
         };
 
         thread0.start();
+        Thread.sleep(100);
         thread1.start();
 //        thread2.start();
 //        thread3.start();
