@@ -7,7 +7,7 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 enum Times {
-    SUBMIT_TIME(10), SUMBMIT_LIMIT(2), MAX_RAND_TIME(15);
+    SUBMIT_TIME(13), SUMBMIT_LIMIT(8), MAX_RAND_TIME(15);
     private final int value;
 
     private Times(int value) {
@@ -21,41 +21,69 @@ enum Times {
 
 public class TestDelayedQueue {
     public static void main(String[] args) throws InterruptedException {
-        DelayQueue<Student> queue = new DelayQueue<>();
-        queue.add(new Student("范冰冰1"));
-        queue.add(new Student("成  龙2"));
-        queue.add(new Student("李一桐3"));
-        queue.add(new Student("宋小宝4"));
-        queue.add(new Student("吴  京5"));
-        queue.add(new Student("绿巨人6"));
-        queue.add(new Student("洪金宝7"));
-        queue.add(new Student("李云龙8"));
-        queue.add(new Student("钢铁侠9"));
-        queue.add(new Student("刘德华10"));
-        queue.add(new Student("戴安娜11"));
-        queue.add(new Student("submit", Times.SUBMIT_TIME.getValue(), TimeUnit.SECONDS));
-        while (true) {
-            Student s = queue.take(); // 必要时进行阻塞等待
-            if (s.getName().equals("submit")) {
-                System.out.println("时间已到，全部交卷！");
-                // 利用Java8 Stream使尚未交卷学生交卷
-                List<Student> students = new ArrayList<>();
-//
-                Iterator<Student> it = queue.iterator();
-                while(it.hasNext()){
-                    Student student = it.next();
-                    student.submit();
-                    System.out.println(student.toString());
-                }
-                System.exit(0);
+        final DelayQueue<Student> queue = new DelayQueue<>();
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                queue.add(new Student("范冰冰1"));
+                queue.add(new Student("成  龙2"));
+                queue.add(new Student("李一桐3"));
+                queue.add(new Student("宋小宝4"));
+                queue.add(new Student("吴  京5"));
+                queue.add(new Student("绿巨人6"));
+                queue.add(new Student("洪金宝7"));
+                queue.add(new Student("李云龙8"));
+                queue.add(new Student("钢铁侠9"));
+                queue.add(new Student("刘德华10"));
+                queue.add(new Student("戴安娜11"));
+                queue.add(new Student("submit", Times.SUBMIT_TIME.getValue(), TimeUnit.SECONDS));
             }
-            System.out.println(s);
-        }
+        };
+        thread.start();
+
+        Thread.sleep(100);
+
+        Thread consumerThrea = new Thread(){
+            @Override
+            public void run() {
+                while (true) {
+                    Student s = null; // 必要时进行阻塞等待
+                    try {
+                        s = queue.take();
+                        if (s.getName().equals("submit")) {
+                            System.out.println("时间已到，全部交卷！");
+                            Iterator<Student> it = queue.iterator();
+                            while(it.hasNext()){
+                                Student student = it.next();
+                                student.submit();
+                                System.out.println(student.toString());
+                            }
+                            break;
+                        }
+                        System.out.println(s);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        consumerThrea.start();
+
+        Thread.sleep(9000);
+
+        Thread thread1 = new Thread(){
+            @Override
+            public void run() {
+                queue.add(new Student("XXXXX", 3, TimeUnit.SECONDS));
+            }
+        };
+        thread1.start();
     }
 }
 
 class Student implements Delayed {
     private String name;
+    private long start;//考试开始时间
     private long delay; // 考试花费时间，单位为毫秒
     private long expire; // 交卷时间，单位为毫秒
 
@@ -64,6 +92,7 @@ class Student implements Delayed {
         this.name = name;
         this.delay = TimeUnit.MILLISECONDS.convert(getRandomSeconds(), TimeUnit.SECONDS); // 随机生成考试花费时间
         this.expire = System.currentTimeMillis() + this.delay;
+        this.start = System.currentTimeMillis();
     }
 
     // 此构造可指定考试花费时间
@@ -71,6 +100,7 @@ class Student implements Delayed {
         this.name = name;
         this.delay = TimeUnit.MILLISECONDS.convert(delay, unit);
         this.expire = System.currentTimeMillis() + this.delay;
+        this.start = System.currentTimeMillis();
     }
 
     public int getRandomSeconds() { // 获取随机花费时间
@@ -114,7 +144,10 @@ class Student implements Delayed {
 
     @Override
     public String toString() {
-        return "学生姓名：" + this.name + ",考试用时：" + TimeUnit.SECONDS.convert(delay, TimeUnit.MILLISECONDS) + ",交卷时间："
-                + DateFormat.getDateTimeInstance().format(new Date(this.expire));
+        return "学生姓名：" + this.name
+                + ",考试用时：" + TimeUnit.SECONDS.convert(delay, TimeUnit.MILLISECONDS)
+                + ",考试开始时间：" + DateFormat.getDateTimeInstance().format(new Date(this.start))
+                + ",交卷时间：" + DateFormat.getDateTimeInstance().format(new Date(this.expire))
+                + ",考试实际用时：" + (new Date().getTime() - this.start)/1000;
     }
 }
