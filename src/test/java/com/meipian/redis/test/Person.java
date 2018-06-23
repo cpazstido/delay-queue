@@ -11,12 +11,19 @@ public class Person {
 
     public static void main(String[] args){
         Person p = new Person();
-        p.sayHi();
-
-        try {
-            Thread.sleep(5000000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(p instanceof Person){
+            System.out.println(true);
         }
+
+        if(Person.class.isInstance(p)){
+            System.out.println(true);
+        }
+//        p.sayHi();
+
+//        try {
+//            Thread.sleep(5000000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 }
