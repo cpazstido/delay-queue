@@ -17,30 +17,32 @@ public class DomParseDemo {
             InputStream is = DomParseDemo.class.getClassLoader().getResourceAsStream("student.xml");
             //1.create DocumentBuilder object
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+            //设置后方可获取NameSpaceURI
+            documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
             //2.create Document object
             Document doc = documentBuilder.parse(is);
 //            doc.getDocumentElement().normalize();
 
-            //get root node
-            System.out.println("Root element :"+ doc.getDocumentElement().getNodeName());
-
             Element root = doc.getDocumentElement();
+            //get root node
+            System.out.println("Root element :"+ root.getNodeName());
+            System.out.println("----------------------------");
+
             //3.get student list;
             NodeList nList = root.getChildNodes();
-            System.out.println("----------------------------");
             for (int temp = 0; temp < nList.getLength(); temp++) {
-                Node nNode = nList.item(temp);
-                System.out.println("\nCurrent Element :"+ nNode.getNodeName());
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElement = (Element) nNode;
+                Node node = nList.item(temp);
+
+                if (node instanceof Element) {
+                    Element eElement = (Element) node;
+                    System.out.println("----------------------------");
+                    System.out.println("NameSpaceURI:"+node.getNamespaceURI());
+                    System.out.println("Current Element :"+ node.getNodeName());
                     System.out.println("local name:"+eElement.getLocalName());
-                    //get attribute
-                    System.out.println("Student roll no : "+ eElement.getAttribute("rollno"));
-                    //get element content
-                    System.out.println("First Name : "+ eElement.getElementsByTagName("firstname").item(0).getTextContent());
-                    System.out.println("Marks : "+ eElement.getElementsByTagName("marks").item(0).getTextContent());
+
                 }
             }
         } catch (Exception e) {
