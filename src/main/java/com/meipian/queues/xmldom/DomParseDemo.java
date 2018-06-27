@@ -1,6 +1,8 @@
 package com.meipian.queues.xmldom;
 
 import com.meipian.queues.xmlsax.XmlParseUtils;
+import org.junit.Test;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,14 +41,22 @@ public class DomParseDemo {
                 if (node instanceof Element) {
                     Element eElement = (Element) node;
                     System.out.println("----------------------------");
-                    System.out.println("NameSpaceURI:"+node.getNamespaceURI());
-                    System.out.println("Current Element :"+ node.getNodeName());
-                    System.out.println("local name:"+eElement.getLocalName());
+                    System.out.println("NameSpaceURI---->"+node.getNamespaceURI());
+                    System.out.println("node name---->"+ node.getNodeName());
+                    System.out.println("local name---->"+eElement.getLocalName());
 
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test(){
+        String [] strs = StringUtils.tokenizeToStringArray("asdkwl,a;d;wekj",",;");
+        for (String str:strs) {
+            System.out.println(str);
         }
     }
 }
