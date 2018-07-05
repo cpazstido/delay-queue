@@ -24,12 +24,13 @@ public class TestDelayQueue {
 
     @Before
     public void init() {
+        String ip = "192.168.2.160";
         jedisPool = new JedisPool();
         queue = new DelayQueue("com.meipian", "delayqueue", jedisPool, 60 * 1000,
                 new DelayQueueProcessListener() {
                     @Override
                     public void pushCallback(Message message) {
-                        //System.out.println("入队:"+message.toString());
+//                        System.out.println("入队:"+message.toString());
                     }
 
                     @Override
@@ -50,6 +51,8 @@ public class TestDelayQueue {
             }
         });
         demonThread.start();
+
+
     }
 
     @Test
@@ -110,5 +113,6 @@ public class TestDelayQueue {
                 queue.push(message);
             }
         }
+
     }
 }
