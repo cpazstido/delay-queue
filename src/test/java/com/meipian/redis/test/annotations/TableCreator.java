@@ -2,6 +2,7 @@ package com.meipian.redis.test.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,10 +87,37 @@ public class TableCreator {
     }
 
     public static void main(String[] args) throws Exception {
+        //基于注解生成表
+//        String[] arg={"com.meipian.redis.test.annotations.Member"};
+//        for(String className : arg) {
+//            System.out.println("Table Creation SQL for " +
+//                    className + " is :\n" + createTableSql(className));
+//        }
+
+        //注解判断
         String[] arg={"com.meipian.redis.test.annotations.Member"};
         for(String className : arg) {
-            System.out.println("Table Creation SQL for " +
-                    className + " is :\n" + createTableSql(className));
+            hasAnnotation(className);
+        }
+    }
+
+    public static void hasAnnotation(String className) throws Exception{
+        Class<?> clazz = Class.forName(className);
+        if(clazz.isAnnotationPresent(DBTable.class)){
+            System.out.println("class has annotation:"+DBTable.class.getSimpleName());
+            Method methods[] = clazz.getMethods();
+            for(Method method:methods){
+                if(method.getAnnotations().length>0){
+                    System.out.println(method.getName()+" has annotation:" + method.getAnnotations()[0].annotationType().getSimpleName());
+                }
+            }
+
+            Field fields[] = clazz.getDeclaredFields();
+            for(Field field:fields){
+                if(field.getAnnotations().length>0){
+                    System.out.println(field.getName()+" has annotation:" + field.getAnnotations()[0].annotationType().getSimpleName());
+                }
+            }
         }
     }
 }
