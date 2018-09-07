@@ -301,7 +301,14 @@
             <version>1.2.1.RELEASE</version>
         </dependency>
 
-	</dependencies>
+        <!--rabbitmq依赖 -->
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+            <version>1.3.5.RELEASE</version>
+        </dependency>
+
+    </dependencies>
 	<build>
 		<plugins>
 			<plugin>
